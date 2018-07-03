@@ -1,6 +1,6 @@
 ---
 gitlab:
-  image: 'gitlab/gitlab-ce:9.1.0-ce.0'
+  image: 'gitlab/gitlab-ce:latest'
   restart: always
   hostname: 'gitlab.example.com'
   links:
@@ -19,11 +19,15 @@ gitlab:
       redis['enable'] = false
       gitlab_rails['redis_host'] = 'redis'
       gitlab_rails['redis_port'] = '6379'
-      external_url 'http://gitlab.example.com:30080'
+      external_url 'https://gitlab.example.com'
       gitlab_rails['gitlab_shell_ssh_port'] = 30022
+      nginx['listen_https'] = false
+  # Note: the nginx['listen_https'] = false directive has to be set to false when using a reverse proxy to add TLS
+  # When using the rev proxy approach, be sure to pass on the headers!
   ports:
-    # both ports must match the port from external_url above
-    - "30080:30080"
+    # both ports must match the port from external_url above if there is no reverse proxy in front of the image
+    # In the case you are adding your own rev proxy and TLS, you can specify the port to be 80
+    - "30080:80"
     # the mapped port must match ssh_port specified above.
     - "30022:22"
 # the following are hints on what volumes to mount if you want to persist data
